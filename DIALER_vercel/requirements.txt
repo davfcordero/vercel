@@ -45,7 +45,6 @@ langchain-text-splitters==0.3.5
 langsmith==0.3.3
 MarkupSafe==3.0.2
 multidict==6.1.0
-mysql==0.0.3
 mysql-connector-python==9.2.0
 numpy==2.2.2
 openai==0.28.0
